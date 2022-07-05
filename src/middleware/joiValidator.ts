@@ -16,6 +16,7 @@ const JoiValidator = (schema: ObjectSchema) => {
 
 			next();
 		} catch (error) {
+			console.log('error', error);
 			return res.status(422).json({
 				error: { message: error.message },
 			});

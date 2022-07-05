@@ -54,7 +54,6 @@ const planner = (req: Request, res: Response) => {
 
 		writeFile(allocationsPath, jsonContentToSave, 'utf-8', (err) => {
 			if (err) {
-				console.log(err);
 				throw new Error(`An error occurred while writing JSON Object to File.`);
 			}
 		});
