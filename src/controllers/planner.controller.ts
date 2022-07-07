@@ -1,10 +1,11 @@
-import { writeFile, readFileSync } from 'fs';
+import { writeFile } from 'fs';
 import { Request, Response } from 'express';
 import { default as workers } from '../json/workers.json';
 import { default as shifts } from '../json/shifts.json';
 import { PlannerDto } from '../dto/planner.dto';
 import { trim } from 'lodash';
 import moment from 'moment';
+import jsonHelper from '../helpers/jsonHelper';
 
 /**
  *
@@ -12,7 +13,7 @@ import moment from 'moment';
  * @param res
  * @returns
  */
-const planner = (req: Request, res: Response) => {
+const createPlanner = (req: Request, res: Response) => {
 	try {
 		const data = req.body as PlannerDto;
 
@@ -34,7 +35,7 @@ const planner = (req: Request, res: Response) => {
 			throw new Error(`Please select from a 24 hour shift timetable of 0-8, 8-16, 16-24`);
 		}
 
-		const jsonFileContent = readJsonFile(allocationsPath);
+		const jsonFileContent = jsonHelper.readJsonFile(allocationsPath);
 
 		const findAllocation = jsonFileContent.find(
 			(allocation) => allocation.today === today && allocation.worker_number === findWorker.worker_number,
@@ -70,17 +71,28 @@ const planner = (req: Request, res: Response) => {
 
 /**
  *
- * @param file
+ * @param req
+ * @param res
+ * @returns
  */
-const readJsonFile = (file) => {
+const getPlannerRecords = (req: Request, res: Response) => {
 	try {
-		const bufferData = readFileSync(file);
-		const stData = bufferData.toString();
-		const data = JSON.parse(stData);
-		return data;
+		const allocationsPath = `${process.cwd()}/src/json/allocations.json`;
+
+		const today = moment().startOf('day').toString();
+
+		const jsonFileContent = jsonHelper.readJsonFile(allocationsPath);
+
+		const findAllocation = jsonFileContent.filter((allocation) => allocation.today === today);
+
+		return res.status(200).json({
+			findAllocation,
+		});
 	} catch (error) {
-		throw new Error(error.message);
+		return res.status(400).json({
+			error: { message: error.message },
+		});
 	}
 };
 
-export default { planner };
+export default { createPlanner, getPlannerRecords };

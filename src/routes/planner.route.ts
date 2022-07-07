@@ -5,7 +5,9 @@ import JoiValidator from '../middleware/joiValidator';
 
 const router = express.Router();
 
-router.post('/', JoiValidator(plannerSchema.scheduleShiftSchema), controller.planner);
+router.post('/', JoiValidator(plannerSchema.scheduleShiftSchema), controller.createPlanner);
+
+router.get('/', controller.getPlannerRecords);
 
 // Export the router
 export = router;
